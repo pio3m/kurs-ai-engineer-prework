@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slajdy kursu</title>
+    <link rel="stylesheet" href="assets/reveal/reset.css">
+    <link rel="stylesheet" href="assets/reveal/reveal.css">
+    <link rel="stylesheet" href="assets/reveal/theme/white.css">
+    <link rel="stylesheet" href="assets/fonts/inter.css">
+    <link rel="stylesheet" href="assets/code-dark.css">
+    <style>
+/* ── Wygląd slajdów: skopiowany 1:1 z app/app/templates/preview.html przez build_paczka.py ── */
+
+        :root {
+            --dm-teal: #2bb5b2;
+            --dm-dark: #333;
+            --dm-header-bg: #f5f5f5;
+            --dm-footer-bg: #fafafa;
+        }
+
+        .reveal {
+            font-family: 'Inter', -apple-system, sans-serif;
+            font-size: 24px;
+            color: var(--dm-dark);
+        }
+
+        .reveal h1, .reveal h2, .reveal h3 {
+            font-family: 'Inter', -apple-system, sans-serif;
+            font-weight: 700;
+            color: var(--dm-dark);
+            text-transform: none;
+            letter-spacing: -0.01em;
+        }
+
+        /* --- Slide layout --- */
+        .reveal .slides section {
+            text-align: left;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Header bar: title h2 sits here */
+        .reveal .slides section h2 {
+            display: block;
+            background: var(--dm-header-bg);
+            margin: 0;
+            padding: 16px 60px 14px 40px;
+            font-size: 0.85em;
+            font-weight: 600;
+            border-bottom: 2.5px solid var(--dm-teal);
+            line-height: 1.3;
+        }
+
+        /* Body content area below header */
+        .reveal .slides section > p,
+        .reveal .slides section > ul,
+        .reveal .slides section > ol,
+        .reveal .slides section > blockquote,
+        .reveal .slides section > table {
+            margin-left: 40px;
+            margin-right: 40px;
+        }
+
+        .reveal .slides section > p:first-of-type {
+            margin-top: 28px;
+        }
+
+        .reveal .slides section > p {
+            font-size: 0.82em;
+            line-height: 1.65;
+            margin-bottom: 0.5em;
+        }
+
+        .reveal .slides section > ul,
+        .reveal .slides section > ol {
+            font-size: 0.82em;
+            line-height: 1.6;
+        }
+
+        .reveal .slides section li {
+            margin-bottom: 0.35em;
+        }
+
+        /* Text blocks are justified (lists, headings, tables and code are not). Hyphenation
+           (lang="pl") keeps justified lines without wide gaps; the last line stays left-aligned. */
+        .reveal .slides section > p,
+        .reveal .slides section > blockquote p,
+        .reveal .slides section .dm-cols > p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            text-wrap: pretty;
+        }
+
+        /* Code blocks: a macOS-style window (three dots in the title bar),
+           as wide as the code needs, centered, with a readable font. */
+        .reveal pre {
+            position: relative;
+            margin: 0.8em auto;
+            width: fit-content;
+            min-width: 55%;
+            max-width: calc(100% - 80px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+            border-radius: 10px;
+            background: #1e1e1e;
+            padding-top: 34px;
+            font-size: 0.8em;
+            overflow: hidden;
+        }
+
+        .reveal pre::before {
+            content: "";
+            position: absolute;
+            top: 12px;
+            left: 16px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ff5f57;
+            box-shadow: 20px 0 0 #febc2e, 40px 0 0 #28c840;
+        }
+
+        .reveal pre code {
+            max-height: 500px;
+            font-size: 1em;
+            line-height: 1.5;
+            padding: 6px 24px 18px;
+        }
+
+        /* Inline code */
+        .reveal code {
+            background: #e8e8e8;
+            padding: 0.1em 0.35em;
+            border-radius: 3px;
+            font-size: 0.88em;
+        }
+
+        /* Navigation arrows above the fixed footer */
+        .reveal .controls {
+            bottom: 52px;
+            right: 20px;
+        }
+
+        /* Bold terms */
+        .reveal strong {
+            font-weight: 700;
+        }
+
+        /* Tables */
+        .reveal table {
+            font-size: 0.7em;
+            border-collapse: collapse;
+            margin: 1em 40px;
+        }
+
+        .reveal table th {
+            background: var(--dm-header-bg);
+            font-weight: 600;
+            border-bottom: 2px solid var(--dm-teal);
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        .reveal table td {
+            padding: 6px 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        /* --- Fixed branding elements --- */
+        .dm-logo {
+            position: fixed;
+            top: 12px;
+            right: 24px;
+            width: 50px;
+            height: 50px;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .dm-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 36px;
+            background: var(--dm-footer-bg);
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            font-size: 13px;
+            color: #999;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .dm-footer a {
+            color: var(--dm-teal);
+            text-decoration: none;
+            pointer-events: auto;
+        }
+
+        .dm-footer { font-family: 'Inter', -apple-system, sans-serif; }
+        .dm-foot-left, .dm-foot-right { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .dm-foot-right { flex-shrink: 0; }
+        .dm-module {
+            background: var(--dm-teal); color: #fff; border-radius: 10px; padding: 1px 9px;
+            font-weight: 600; font-size: 12px; white-space: nowrap;
+        }
+        .dm-foot-section { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #777; }
+        .dm-page { color: #555; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .dm-foot-btn {
+            pointer-events: auto; background: #fff; border: 1px solid #ccc; border-radius: 4px;
+            padding: 2px 9px; font: 12px 'Inter', -apple-system, sans-serif; color: #333; cursor: pointer; white-space: nowrap;
+        }
+        .dm-foot-btn:hover { border-color: var(--dm-teal); color: var(--dm-teal); }
+        .dm-foot-btn:disabled { opacity: .45; cursor: default; color: #333; border-color: #ccc; }
+
+        /* Navigation panel (course-nav.js) */
+        .dm-drawer {
+            position: fixed; top: var(--nav-top, 0px); left: 0; bottom: 0; width: 360px; max-width: 92vw;
+            z-index: 260; background: #fff; border-right: 1px solid #e0e0e0; box-shadow: 4px 0 18px rgba(0,0,0,.12);
+            display: flex; flex-direction: column; box-sizing: border-box;
+            font-family: 'Inter', -apple-system, sans-serif; font-size: 13px; color: #333;
+            transform: translateX(-105%); transition: transform .18s ease; visibility: hidden;
+        }
+        .dm-drawer.dm-open { transform: none; visibility: visible; }
+        .dm-drawer-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px 8px; font-size: 15px; }
+        .dm-icon-btn { background: none; border: none; font-size: 16px; cursor: pointer; color: #666; }
+        .dm-search {
+            margin: 0 14px 8px; padding: 7px 10px; border: 1px solid #ccc; border-radius: 5px; font: inherit;
+        }
+        .dm-search:focus { outline: none; border-color: var(--dm-teal); box-shadow: 0 0 0 2px rgba(43,181,178,.2); }
+        .dm-drawer-nav { display: flex; gap: 6px; padding: 0 14px 10px; border-bottom: 1px solid #eee; }
+        .dm-drawer-nav .dm-foot-btn { flex: 1; padding: 4px 4px; }
+        .dm-drawer-body { flex: 1; overflow-y: auto; padding: 6px 8px 12px; }
+        .dm-toc-list { list-style: none; margin: 0; padding: 0; }
+        .dm-toc-sec { margin: 2px 0; }
+        .dm-toc-sec > summary {
+            display: flex; justify-content: space-between; gap: 8px; cursor: pointer; padding: 7px 6px;
+            font-weight: 600; border-radius: 4px; list-style: none;
+        }
+        .dm-toc-sec > summary::-webkit-details-marker { display: none; }
+        .dm-toc-sec > summary::before { content: "▸"; color: #999; }
+        .dm-toc-sec[open] > summary::before { content: "▾"; }
+        .dm-toc-sec > summary:hover { background: #f5f5f5; }
+        .dm-sec-title { flex: 1; }
+        .dm-sec-pages { color: #999; font-weight: 400; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        .dm-toc-sec .dm-toc-list { padding-left: 14px; }
+        .dm-item, .dm-result {
+            display: flex; gap: 8px; padding: 4px 6px; border-radius: 4px; color: #333; text-decoration: none; line-height: 1.35;
+        }
+        .dm-item:hover, .dm-result:hover { background: #f0fafa; }
+        .dm-item .dm-label { flex: 1; min-width: 0; }
+        .dm-cmark { flex-shrink: 0; align-self: flex-start; margin-top: 1px; border-radius: 9px; padding: 0 6px; font-size: 11px; line-height: 17px; font-weight: 600; white-space: nowrap; }
+        .dm-cmark + .dm-cmark { margin-left: -4px; }
+        .dm-cmark-open { background: #f39c12; color: #fff; }
+        .dm-cmark-mine { box-shadow: 0 0 0 2px #e74c3c; }
+        .dm-cmark-done { background: #e8f5e9; color: #2e7d32; }
+        .dm-num { color: #999; min-width: 26px; text-align: right; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+        .dm-item.dm-seen .dm-num::after { content: " ✓"; color: var(--dm-teal); }
+        .dm-item.dm-current { background: #e3f6f5; font-weight: 600; }
+        .dm-result { flex-direction: column; gap: 2px; margin-bottom: 4px; border: 1px solid #eee; }
+        .dm-result-head { display: flex; gap: 8px; font-weight: 600; }
+        .dm-result-sec { color: #999; font-size: 12px; padding-left: 34px; }
+        .dm-snippet { color: #555; font-size: 12px; padding-left: 34px; }
+        .dm-snippet mark { background: #ffe082; color: inherit; }
+        .dm-muted { color: #888; margin: 6px; }
+        .dm-keys { margin: 0; padding: 8px 14px; border-top: 1px solid #eee; color: #888; font-size: 11px; line-height: 1.6; }
+        .dm-keys kbd { background: #f3f3f3; border: 1px solid #ddd; border-radius: 3px; padding: 0 4px; font-size: 10px; }
+
+        /* PDF: Reveal's slide number above the footer */
+        .reveal .slide-number { z-index: 150; }
+
+        /* Adjust reveal to leave room for footer */
+        .reveal .slides {
+            margin-bottom: 36px;
+        }
+
+        /* Explanation paragraphs (italic / supplementary) */
+        .reveal .slides section > p > em:only-child {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        /* Title / section separator slides (use h1 instead of h2) */
+        .reveal .slides section h1 {
+            text-align: center;
+            background: none;
+            border-bottom: none;
+            font-size: 1.6em;
+            font-weight: 700;
+            color: var(--dm-dark);
+            margin: 0;
+            padding: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+        }
+
+        /* Two-column text slides (devmentor layout): body split under the
+           header with a dashed vertical line in the middle. Slides with
+           code (or a single block, e.g. the agenda) stay full width.
+           Built by splitIntoColumns() below. */
+        .reveal .slides section .dm-cols {
+            column-count: 2;
+            column-gap: 80px;
+            column-rule: 2px dashed #cfcfcf;
+            column-fill: balance;
+            margin: 28px 40px 0;
+        }
+
+        .reveal .slides section .dm-cols > p,
+        .reveal .slides section .dm-cols > ul,
+        .reveal .slides section .dm-cols > ol {
+            font-size: 0.76em;
+            line-height: 1.55;
+            margin: 0 0 0.7em;
+        }
+
+        .reveal .slides section .dm-cols > ul,
+        .reveal .slides section .dm-cols > ol {
+            margin-left: 1.2em;
+        }
+
+        /* A long list may continue in the second column (Reveal's inline-block lists cannot);
+           a short one stays together. */
+        .reveal .slides section .dm-cols > .dm-flow {
+            display: block;
+        }
+
+        .reveal .slides section .dm-cols > p,
+        .reveal .slides section .dm-cols li,
+        .reveal .slides section .dm-cols > table,
+        .reveal .slides section .dm-cols > blockquote {
+            break-inside: avoid;
+        }
+
+        .reveal .slides section .dm-cols > .dm-keep-next {
+            break-after: avoid;
+        }
+
+        .reveal .slides section .dm-cols > table {
+            margin: 0 0 1em;
+        }
+
+        /* Section separator: "Prework · część 2 z 4 · slajdy 12–30" (course-nav.js) */
+        .reveal .slides section p.dm-sec-meta {
+            position: absolute; top: 60%; left: 50%; transform: translateX(-50%); width: 80%;
+            margin: 0; text-align: center; font-size: 0.6em; color: #888; letter-spacing: 0.02em;
+        }
+
+        /* Clickable "Spis treści" slide */
+        .reveal .slides section a.dm-toc-link {
+            display: flex; justify-content: space-between; gap: 24px; color: inherit; text-decoration: none;
+            border-bottom: 1px dotted #ccc;
+        }
+        .reveal .slides section a.dm-toc-link:hover { color: var(--dm-teal); }
+        .reveal .slides section .dm-toc-page { color: #999; font-variant-numeric: tabular-nums; }
+
+        /* Center body text on h1 slides (subtitle) */
+        .reveal .slides section h1 + p {
+            text-align: center;
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        /* ── PDF (?print-pdf): readability first ──
+           Nothing scrolls or is clipped on paper: code wraps and shows every line, every page
+           starts at the top, and a page whose content is still too tall is scaled down to fit
+           above the footer (fitPrintPages below), never cut off. */
+        html.print-pdf .reveal .slides section {
+            height: 720px !important;
+            min-height: 720px !important;
+            top: 0 !important;
+        }
+        html.print-pdf .reveal pre { overflow: visible; }
+        html.print-pdf .reveal pre code {
+            max-height: none;
+            overflow: visible;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+        html.print-pdf .reveal .controls,
+        html.print-pdf .reveal .progress { display: none !important; }
+        html.print-pdf .dm-foot-btn, html.print-pdf .dm-page { display: none; }
+        html.print-pdf .dm-foot-section { visibility: hidden; }  /* the same text on every page would be wrong */
+        html.print-pdf .reveal pre { box-shadow: none; }
+        html.print-pdf .reveal table { break-inside: avoid; }
+    
+    </style>
+    <style>
+        /* ── Strona startowa (lista modułów) i komunikaty ── */
+        body.sv-home { margin: 0; background: #f7f7f7; font-family: 'Inter', -apple-system, sans-serif; color: #333; }
+        body.sv-home .dm-footer, body.sv-home .dm-logo, body.sv-home .reveal, body.sv-home .dm-drawer { display: none; }
+        .sv-page { max-width: 720px; margin: 0 auto; padding: 48px 16px; box-sizing: border-box; }
+        .sv-page header { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; }
+        .sv-page header img { width: 56px; height: 56px; }
+        .sv-page h1 { font-size: 26px; margin: 0; }
+        .sv-page .sv-sub { color: #777; margin: 4px 0 0; font-size: 14px; }
+        .sv-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+        .sv-list a {
+            display: flex; gap: 14px; align-items: center; padding: 16px 18px; background: #fff;
+            border: 1px solid #e3e3e3; border-left: 4px solid #2bb5b2; border-radius: 6px;
+            color: inherit; text-decoration: none;
+        }
+        .sv-list a:hover { border-color: #2bb5b2; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+        .sv-list .dm-module { flex-shrink: 0; }
+        .sv-list .sv-title { font-weight: 600; }
+        .sv-error { background: #fdecea; border: 1px solid #f5c2bd; color: #8a1f11; border-radius: 6px; padding: 14px 16px; line-height: 1.5; }
+        .sv-error code { background: rgba(0,0,0,.06); padding: 0 4px; border-radius: 3px; }
+        .sv-local { margin-top: 32px; padding-top: 20px; border-top: 1px dashed #ccc; color: #666; font-size: 14px; line-height: 1.5; }
+        .sv-local label { display: inline-block; margin-top: 8px; background: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 6px 12px; cursor: pointer; }
+        .sv-local label:hover { border-color: #2bb5b2; color: #2bb5b2; }
+        .sv-local input { display: none; }
+        .sv-back { pointer-events: auto; }
+    </style>
+</head>
+<body class="sv-home">
+    <img class="dm-logo" src="assets/devmentor-logo.png" alt="devmentor">
+
+    <div class="dm-footer">
+        <span class="dm-foot-left">
+            <a class="dm-module sv-back" id="sv-module" href="./" title="Wszystkie moduły" style="color:#fff;"></a>
+            <span class="dm-foot-section" id="dm-section-name"></span>
+        </span>
+        <span class="dm-foot-right">
+            <button type="button" class="dm-foot-btn" id="dm-nav-toggle" title="Spis treści i wyszukiwarka (T, Ctrl+F)">☰ Spis treści / szukaj</button>
+            <span class="dm-page" id="dm-page"></span>
+            <a href="https://devmentor.pl">devmentor.pl</a>
+        </span>
+    </div>
+
+    <div class="reveal">
+        <div class="slides" id="sv-slides"></div>
+    </div>
+
+    <aside class="dm-drawer" id="dm-drawer" aria-hidden="true" aria-label="Spis treści">
+        <div class="dm-drawer-head">
+            <strong>Spis treści</strong>
+            <button type="button" class="dm-icon-btn" id="dm-drawer-close" title="Zamknij (Esc)">✕</button>
+        </div>
+        <input type="search" class="dm-search" id="dm-search" placeholder="Szukaj w slajdach…" autocomplete="off">
+        <div class="dm-drawer-nav">
+            <button type="button" class="dm-foot-btn" id="dm-prev-section">‹ Poprzednia część</button>
+            <button type="button" class="dm-foot-btn" id="dm-goto-toc">Slajd ze spisem</button>
+            <button type="button" class="dm-foot-btn" id="dm-next-section">Następna część ›</button>
+        </div>
+        <div class="dm-drawer-body">
+            <div id="dm-toc"></div>
+            <div id="dm-results" style="display:none;"></div>
+        </div>
+        <p class="dm-keys">Skróty: <kbd>T</kbd> spis treści, <kbd>Ctrl</kbd>+<kbd>F</kbd> lub <kbd>/</kbd> szukaj, <kbd>Esc</kbd> zamknij, strzałki: poprzedni / następny slajd.</p>
+    </aside>
+
+    <main class="sv-page" id="sv-home">
+        <header>
+            <img src="assets/devmentor-logo.png" alt="">
+            <div>
+                <h1>Slajdy kursu</h1>
+                <p class="sv-sub">Python AI i Automatyzacja</p>
+            </div>
+        </header>
+        <div id="sv-home-body"><p class="sv-sub">Wczytuję listę modułów…</p></div>
+        <div class="sv-local">
+            Podgląd pliku z dysku (bez wgrywania na serwer): wybierz plik <code>.md</code> pobrany z narzędzia.<br>
+            <label>Wybierz plik Markdown<input type="file" id="sv-file" accept=".md,.markdown,text/markdown,text/plain"></label>
+        </div>
+    </main>
+
+    <script src="assets/reveal/reveal.js"></script>
+    <script src="assets/reveal/plugin/markdown/markdown.js"></script>
+    <script src="assets/reveal/plugin/highlight/highlight.js"></script>
+    <script>
+    (function () {
+        'use strict';
+        // Gdzie leżą pliki: slajdy/<nazwa>.md, lista modułów w slajdy/moduly.json
+        const DIR = 'slajdy/';
+        const params = new URLSearchParams(location.search);
+        const homeBody = document.getElementById('sv-home-body');
+
+        function esc(s) {
+            const d = document.createElement('div');
+            d.textContent = s == null ? '' : String(s);
+            return d.innerHTML;
+        }
+
+        function showError(html) {
+            homeBody.innerHTML = '<div class="sv-error">' + html + '</div>';
+        }
+
+        // Te same nazwy, które pokazuje narzędzie: module-0 = Prework, module-N = Moduł N
+        function labelFor(name) {
+            const m = /^module-(\d+)/.exec(name || '');
+            if (!m) return 'Kurs';
+            return m[1] === '0' ? 'Prework' : 'Moduł ' + Number(m[1]);
+        }
+
+        function titleOf(md) {
+            const line = md.split('\n').find(l => l.startsWith('# '));
+            return line ? line.slice(2).trim() : '';
+        }
+
+        // Pliki zapisane na Windowsie mają końce linii CRLF; separator slajdów "^---$" wymaga LF.
+        function normalize(md) {
+            return stripScripts(md.replace(/^﻿/, '').replace(/\r\n?/g, '\n'));
+        }
+
+        // Kod JavaScript z Markdowna nie jest uruchamiany: poza blokami ``` usuwamy tagi
+        // script/iframe/object/embed, atrybuty on*="…" i linki javascript: zanim Reveal zrobi z tego HTML.
+        // Bloki kodu zostają bez zmian (i tak są pokazywane jako tekst).
+        function stripScripts(md) {
+            const parts = md.split(/(^```[^\n]*\n[\s\S]*?^```[ \t]*$)/m);
+            return parts.map((part, i) => {
+                if (i % 2 === 1) return part;
+                let prev;
+                do {
+                    prev = part;
+                    part = part
+                        .replace(/<(script|iframe|object|embed)\b[\s\S]*?(<\/\1\s*>|$)/gi, '')
+                        .replace(/<(script|iframe|object|embed)\b[^>]*>/gi, '')
+                        .replace(/(<[a-z][^>]*?)\s+on[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '$1')
+                        .replace(/(<[a-z][^>]*?\s(?:href|src)\s*=\s*["']?)\s*javascript:/gi, '$1#');
+                } while (part !== prev);
+                return part;
+            }).join('');
+        }
+
+        function sanitize(root) {
+            root.querySelectorAll('script, iframe, object, embed').forEach(el => el.remove());
+            root.querySelectorAll('*').forEach(el => {
+                Array.from(el.attributes).forEach(a => {
+                    if (/^on/i.test(a.name) || (/^(href|src)$/i.test(a.name) && /^\s*javascript:/i.test(a.value))) {
+                        el.removeAttribute(a.name);
+                    }
+                });
+            });
+        }
+
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const s = document.createElement('script');
+                s.src = src;
+                s.onload = resolve;
+                s.onerror = () => reject(new Error('Nie udało się wczytać ' + src));
+                document.body.appendChild(s);
+            });
+        }
+
+        // ── Tryb prezentacji: jeden plik Markdown ──
+        async function present(md, name, meta) {
+            md = normalize(md);
+            const title = (meta && meta.tytul) || titleOf(md) || name;
+            const label = (meta && meta.etykieta) || labelFor(name);
+            document.title = title;
+            document.body.classList.remove('sv-home');
+            document.getElementById('sv-home').remove();
+            document.body.dataset.moduleLabel = label;
+            document.body.dataset.moduleTitle = title;
+            const badge = document.getElementById('sv-module');
+            badge.textContent = label;
+            badge.title = title + ' (wróć do listy modułów)';
+
+            const section = document.createElement('section');
+            section.setAttribute('data-markdown', '');
+            section.setAttribute('data-separator', '^---$');
+            section.setAttribute('data-separator-vertical', '^--$');
+            const ta = document.createElement('textarea');
+            ta.setAttribute('data-template', '');
+            ta.textContent = md;  // the Markdown plugin reads textContent, not value
+            section.appendChild(ta);
+            document.getElementById('sv-slides').appendChild(section);
+
+            // course-nav.js czyta etykietę modułu przy starcie, więc ładujemy go po jej ustawieniu
+            await loadScript('assets/course-nav.js');
+
+            Reveal.initialize({
+                hash: true,
+                width: 1280,
+                height: 720,
+                margin: 0.0,
+                slideNumber: 'c/t',
+                showSlideNumber: 'print',
+                center: !/print-pdf/.test(location.search),
+                pdfMaxPagesPerSlide: 1,
+                pdfSeparateFragments: false,
+                plugins: [RevealMarkdown, RevealHighlight]
+            });
+        }
+
+        // Dwie kolumny dla slajdów z samym tekstem (jak w podglądzie narzędzia)
+        const LONG_LIST = 5;
+        function splitIntoColumns(section) {
+            const header = section.querySelector(':scope > h2');
+            if (!header || section.querySelector('pre, table')) return;
+            const blocks = Array.from(section.children).filter(el => el !== header);
+            if (blocks.length < 2) return;
+            const cols = document.createElement('div');
+            cols.className = 'dm-cols';
+            blocks.forEach(el => {
+                if (el.textContent.trim().endsWith(':')) el.classList.add('dm-keep-next');
+                if (el.matches('ul, ol') && el.children.length > LONG_LIST) el.classList.add('dm-flow');
+                cols.appendChild(el);
+            });
+            section.appendChild(cols);
+            section.classList.add('dm-two-col');
+        }
+
+        Reveal.on('ready', () => {
+            sanitize(document.getElementById('sv-slides'));
+            Reveal.getSlides().forEach(splitIntoColumns);
+            Reveal.layout();
+        });
+
+        // Wydruk do PDF (?print-pdf, potem Ctrl+P): za wysoka strona jest zmniejszana (min. 70%)
+        const PRINT_BOTTOM = 720 - 36 - 8;
+        function fitPrintPages() {
+            Reveal.getSlides().forEach(section => {
+                const header = section.querySelector(':scope > h2');
+                if (!header) return;
+                const top = section.getBoundingClientRect().top;
+                let bottom = 0;
+                section.querySelectorAll(':scope > *, :scope > .dm-cols > *').forEach(el => {
+                    const r = el.getBoundingClientRect();
+                    if (r.height) bottom = Math.max(bottom, r.bottom - top);
+                });
+                if (bottom <= PRINT_BOTTOM) return;
+                const headerBottom = header.getBoundingClientRect().bottom - top;
+                const zoom = Math.max(0.7, (PRINT_BOTTOM - headerBottom) / (bottom - headerBottom));
+                Array.from(section.children).filter(el => el !== header)
+                    .forEach(el => { el.style.zoom = zoom.toFixed(3); });
+            });
+            document.documentElement.classList.add('dm-print-ready');
+        }
+        if (/print-pdf/.test(location.search)) {
+            Reveal.on('pdf-ready', () => document.fonts.ready.then(fitPrintPages));
+        }
+
+        // ── Strona startowa: lista z slajdy/moduly.json ──
+        async function readList() {
+            const res = await fetch(DIR + 'moduly.json', { cache: 'no-cache' });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+            return Array.isArray(data) ? data : (data.moduly || []);
+        }
+
+        async function home() {
+            let list;
+            try {
+                list = await readList();
+            } catch (e) {
+                if (location.protocol === 'file:') {
+                    showError('Strona jest otwarta prosto z dysku, więc przeglądarka nie pozwala jej czytać plików z folderu <code>slajdy/</code>. ' +
+                        'Wgraj folder na serwer albo wybierz plik poniżej.');
+                } else {
+                    showError('Nie mogę wczytać <code>' + DIR + 'moduly.json</code> (' + esc(e.message) + '). ' +
+                        'Sprawdź, czy plik jest na serwerze i czy jest poprawnym JSON-em.');
+                }
+                return;
+            }
+            if (!list.length) {
+                showError('Lista modułów w <code>' + DIR + 'moduly.json</code> jest pusta.');
+                return;
+            }
+            homeBody.innerHTML = '<ul class="sv-list">' + list.map(m => {
+                const name = String(m.plik || '').replace(/\.md$/i, '');
+                const label = m.etykieta || labelFor(name);
+                return '<li><a href="?m=' + encodeURIComponent(name) + '"><span class="dm-module">' + esc(label) +
+                    '</span><span class="sv-title">' + esc(m.tytul || name) + '</span></a></li>';
+            }).join('') + '</ul>';
+        }
+
+        async function openModule(name) {
+            // Tylko nazwy plików z folderu slajdy/ (bez ścieżek i "..")
+            if (!/^[A-Za-z0-9._-]+$/.test(name) || name.includes('..')) {
+                showError('Niepoprawna nazwa modułu: <code>' + esc(name) + '</code>.');
+                return;
+            }
+            let meta = null;
+            try { meta = (await readList()).find(m => String(m.plik || '').replace(/\.md$/i, '') === name) || null; } catch (e) { /* lista jest opcjonalna */ }
+            try {
+                const res = await fetch(DIR + name + '.md', { cache: 'no-cache' });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                await present(await res.text(), name, meta);
+            } catch (e) {
+                showError('Nie mogę wczytać pliku <code>' + esc(DIR + name) + '.md</code> (' + esc(e.message) + '). ' +
+                    '<a href="./">Wróć do listy modułów</a>.');
+            }
+        }
+
+        document.getElementById('sv-file').addEventListener('change', ev => {
+            const file = ev.target.files[0];
+            if (!file) return;
+            const name = file.name.replace(/\.(md|markdown)$/i, '');
+            file.text().then(md => present(md, name, null));
+        });
+
+        const m = params.get('m');
+        if (m) openModule(m); else home();
+    })();
+    </script>
+</body>
+</html>

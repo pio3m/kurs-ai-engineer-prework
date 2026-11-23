@@ -1,0 +1,84 @@
+/* Code blocks in the style of VS Code Dark+ (highlight.js token classes).
+   Only <pre><code> blocks; inline code keeps the light slide style. */
+
+.reveal pre code.hljs,
+.reveal pre code {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    font-family: Consolas, "Cascadia Code", "Fira Code", Menlo, monospace;
+}
+
+.reveal pre code .hljs-keyword,
+.reveal pre code .hljs-literal,
+.reveal pre code .hljs-symbol,
+.reveal pre code .hljs-name,
+.reveal pre code .hljs-link {
+    color: #569cd6;
+}
+
+.reveal pre code .hljs-built_in,
+.reveal pre code .hljs-type,
+.reveal pre code .hljs-title.class_,
+.reveal pre code .hljs-class .hljs-title {
+    color: #4ec9b0;
+}
+
+.reveal pre code .hljs-title.function_,
+.reveal pre code .hljs-function .hljs-title,
+.reveal pre code .hljs-section {
+    color: #dcdcaa;
+}
+
+.reveal pre code .hljs-number,
+.reveal pre code .hljs-selector-class,
+.reveal pre code .hljs-selector-id {
+    color: #b5cea8;
+}
+
+.reveal pre code .hljs-string,
+.reveal pre code .hljs-regexp,
+.reveal pre code .hljs-template-tag,
+.reveal pre code .hljs-addition {
+    color: #ce9178;
+}
+
+.reveal pre code .hljs-comment,
+.reveal pre code .hljs-quote {
+    color: #6a9955;
+    font-style: italic;
+}
+
+.reveal pre code .hljs-meta,
+.reveal pre code .hljs-meta .hljs-keyword {
+    color: #c586c0;
+}
+
+.reveal pre code .hljs-variable,
+.reveal pre code .hljs-template-variable,
+.reveal pre code .hljs-params,
+.reveal pre code .hljs-attr,
+.reveal pre code .hljs-attribute,
+.reveal pre code .hljs-property {
+    color: #9cdcfe;
+}
+
+.reveal pre code .hljs-tag,
+.reveal pre code .hljs-selector-tag {
+    color: #569cd6;
+}
+
+.reveal pre code .hljs-subst {
+    color: #d4d4d4;
+}
+
+.reveal pre code .hljs-deletion {
+    color: #f44747;
+}
+
+.reveal pre code .hljs-emphasis {
+    font-style: italic;
+}
+
+.reveal pre code .hljs-strong {
+    font-weight: bold;
+}

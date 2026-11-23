@@ -1,0 +1,18 @@
+# Przeglądarka slajdów (Apache, typowy hosting z WordPressem).
+# Pliki .md jako tekst UTF-8, bez trzymania starej wersji w cache,
+# żeby podmieniony plik było widać od razu po odświeżeniu.
+AddType text/markdown .md
+AddType application/json .json
+AddCharset UTF-8 .md .json
+AddDefaultCharset UTF-8
+<IfModule mod_headers.c>
+  <FilesMatch "\.(md|json)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>
+# Instrukcja jest tylko dla wdrażającego
+<IfModule mod_authz_core.c>
+  <Files "CZYTAJ-MNIE.md">
+    Require all denied
+  </Files>
+</IfModule>

@@ -1,0 +1,10 @@
+[
+  {
+    "plik": "module-0.md",
+    "tytul": "Moduł 0: Prework, przygotowanie środowiska i wyrównanie poziomu"
+  },
+  {
+    "plik": "module-1.md",
+    "tytul": "Moduł 1: Pierwsze wywołanie LLM API, zarządzanie promptami i rozdzielone testowanie"
+  }
+]
