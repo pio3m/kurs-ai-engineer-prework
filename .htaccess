@@ -10,9 +10,10 @@ AddDefaultCharset UTF-8
     Header set Cache-Control "no-cache"
   </FilesMatch>
 </IfModule>
-# Instrukcja jest tylko dla wdrażającego
+# Pliki robocze (.git, .env, konfiguracja Dockera) nie są do pobrania
+RedirectMatch 404 /\.(git|env)
 <IfModule mod_authz_core.c>
-  <Files "CZYTAJ-MNIE.md">
+  <Files "docker-compose.yml">
     Require all denied
   </Files>
 </IfModule>

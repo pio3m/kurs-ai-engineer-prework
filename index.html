@@ -425,6 +425,22 @@
         .sv-local label:hover { border-color: #2bb5b2; color: #2bb5b2; }
         .sv-local input { display: none; }
         .sv-back { pointer-events: auto; }
+        /* Formularz „Zgłoś sugestię” */
+        .sv-dialog { width: 460px; max-width: 92vw; border: none; border-radius: 8px; padding: 20px; box-sizing: border-box; box-shadow: 0 12px 40px rgba(0,0,0,.3); font: 14px 'Inter', -apple-system, sans-serif; color: #333; }
+        .sv-dialog::backdrop { background: rgba(0,0,0,.35); }
+        .sv-dialog h2 { margin: 0 0 4px; font-size: 18px; }
+        .sv-dialog label { display: block; margin: 12px 0 4px; color: #555; }
+        .sv-dialog input, .sv-dialog textarea { width: 100%; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; padding: 7px 10px; font: inherit; }
+        .sv-dialog textarea { min-height: 110px; resize: vertical; }
+        .sv-dialog .sv-hp { position: absolute; left: -9999px; }
+        .sv-muted { color: #888; font-size: 12px; margin: 8px 0; }
+        .sv-demo { margin-top: 14px; padding: 10px; background: #fffbe6; border: 1px solid #f5e3a0; border-radius: 5px; font-size: 12px; }
+        .sv-demo ul { max-height: 110px; overflow-y: auto; margin: 6px 0; padding-left: 18px; overflow-wrap: anywhere; }
+        .sv-actions { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 12px; }
+        .sv-actions .sv-status { margin-right: auto; }
+        .sv-actions button { border: 1px solid #ccc; background: #fff; border-radius: 5px; padding: 7px 14px; font: inherit; cursor: pointer; }
+        .sv-actions button[type=submit] { background: #2bb5b2; border-color: #2bb5b2; color: #fff; }
+        .sv-actions button:disabled { opacity: .5; cursor: default; }
     </style>
 </head>
 <body class="sv-home">
@@ -440,6 +456,7 @@
                 <label class="dm-foot-btn" style="margin:0;">Wczytaj inny plik<input type="file" id="sv-file-swap" accept=".md,.markdown,text/markdown,text/plain" style="display:none;"></label>
                 <button type="button" class="dm-foot-btn" id="sv-file-remove" title="Usuń wczytany plik i wróć do wyboru">Usuń plik</button>
             </span>
+            <button type="button" class="dm-foot-btn" id="sv-suggest" style="display:none;">Zgłoś sugestię</button>
             <button type="button" class="dm-foot-btn" id="sv-pdf" title="Zapisz całą prezentację jako PDF">Pobierz PDF</button>
             <button type="button" class="dm-foot-btn" id="dm-nav-toggle" title="Spis treści i wyszukiwarka (T, Ctrl+F)">☰ Spis treści / szukaj</button>
             <span class="dm-page" id="dm-page"></span>
@@ -468,6 +485,29 @@
         </div>
         <p class="dm-keys">Skróty: <kbd>T</kbd> spis treści, <kbd>Ctrl</kbd>+<kbd>F</kbd> lub <kbd>/</kbd> szukaj, <kbd>Esc</kbd> zamknij, strzałki: poprzedni / następny slajd.</p>
     </aside>
+
+    <dialog class="sv-dialog" id="sv-dialog" aria-labelledby="sv-dialog-title">
+        <form id="sv-form">
+            <h2 id="sv-dialog-title">Zgłoś sugestię</h2>
+            <div class="sv-muted" id="sv-slide-info"></div>
+            <label for="sv-author">Imię</label>
+            <input id="sv-author" name="author" maxlength="80" required autocomplete="name">
+            <label for="sv-text">Co poprawić na tym slajdzie?</label>
+            <textarea id="sv-text" name="text" maxlength="2000" required></textarea>
+            <input class="sv-hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <p class="sv-muted">Zapisujemy Twoje imię, treść i numer slajdu, aby poprawić materiały. Widzi je tylko prowadzący.</p>
+            <div class="sv-actions">
+                <span class="sv-status" id="sv-status" role="status"></span>
+                <button type="button" id="sv-cancel">Anuluj</button>
+                <button type="submit" id="sv-send">Wyślij</button>
+            </div>
+            <div class="sv-demo" id="sv-demo" hidden>
+                <strong>Tryb testowy:</strong> nic nie trafia na serwer. Zapisane w tej przeglądarce:
+                <ul></ul>
+                <button type="button" class="dm-foot-btn" id="sv-demo-clear">Wyczyść testowe</button>
+            </div>
+        </form>
+    </dialog>
 
     <main class="sv-page" id="sv-home">
         <header>
@@ -626,6 +666,7 @@
             sanitize(document.getElementById('sv-slides'));
             Reveal.getSlides().forEach(splitIntoColumns);
             Reveal.layout();
+            goToKey();
         });
 
         // Wydruk do PDF (?print-pdf, potem Ctrl+P): za wysoka strona jest zmniejszana, aż zmieści się w całości
@@ -665,6 +706,113 @@
             q.set('auto', '1');
             window.open(location.pathname + '?' + q.toString(), '_blank');
         });
+
+        // ── Zgłoś sugestię: przycisk tylko tam, gdzie działa api/suggest.php (hosting z PHP) ──
+        const API = 'api/suggest.php';
+        function setupSuggestions(moduleId) {
+            const button = document.getElementById('sv-suggest');
+            const dialog = document.getElementById('sv-dialog');
+            const form = document.getElementById('sv-form');
+            const status = document.getElementById('sv-status');
+            const send = document.getElementById('sv-send');
+            const field = name => form.elements.namedItem(name);
+            let slide = null;
+            // Na GitHub Pages plik .php nie jest wykonywany, więc odpowiedź nie jest JSON-em
+            // ?demo=1: test formularza bez serwera (np. GitHub Pages), zapis tylko w tej przeglądarce
+            const demo = params.get('demo') === '1';
+            const DEMO_KEY = 'sv-demo-suggestions';
+            const demoList = () => {
+                try { return JSON.parse(localStorage.getItem(DEMO_KEY) || '[]'); } catch (e) { return []; }
+            };
+            function showDemoList() {
+                const box = document.getElementById('sv-demo');
+                const list = demoList();
+                box.hidden = !demo;
+                box.querySelector('ul').innerHTML = list.slice().reverse().map(s => '<li>' +
+                    esc(new Date(s.created_at).toLocaleString('pl-PL') + ' · ' + s.author + ' · slajd ' + s.slide_number + ': ' + s.text) +
+                    '</li>').join('') || '<li>Jeszcze nic.</li>';
+            }
+            document.getElementById('sv-demo-clear').addEventListener('click', () => {
+                localStorage.removeItem(DEMO_KEY);
+                showDemoList();
+            });
+            if (demo) {
+                button.style.display = '';
+            } else {
+                fetch(API, { cache: 'no-store' }).then(r => r.json())
+                    .then(r => { if (r && r.ok) button.style.display = ''; })
+                    .catch(() => { /* brak API: przycisk zostaje ukryty */ });
+            }
+
+            button.addEventListener('click', () => {
+                const section = Reveal.getCurrentSlide();
+                const heading = section.querySelector('h2, h1');
+                slide = {
+                    module: moduleId,
+                    section: section.dataset.sectionNumber || '',
+                    slide_key: section.dataset.slideKey || '',
+                    part: section.dataset.part || '',
+                    slide_number: Reveal.getSlides().indexOf(section) + 1,
+                    slide_title: heading ? heading.textContent.trim() : ''
+                };
+                document.getElementById('sv-slide-info').textContent = 'Slajd ' + slide.slide_number + ': ' + slide.slide_title;
+                try { field('author').value = localStorage.getItem('sv-author') || ''; } catch (e) { /* tryb prywatny */ }
+                status.textContent = '';
+                send.disabled = false;
+                showDemoList();
+                Reveal.configure({ keyboard: false });
+                dialog.showModal();
+                field(field('author').value ? 'text' : 'author').focus();
+            });
+            dialog.addEventListener('close', () => Reveal.configure({ keyboard: true }));
+            document.getElementById('sv-cancel').addEventListener('click', () => dialog.close());
+
+            form.addEventListener('submit', async ev => {
+                ev.preventDefault();
+                send.disabled = true;
+                status.textContent = 'Wysyłam…';
+                const author = field('author').value;
+                if (demo) {
+                    const entry = Object.assign({ created_at: new Date().toISOString(), author: author.trim(), text: field('text').value.trim() }, slide);
+                    try {
+                        localStorage.setItem(DEMO_KEY, JSON.stringify(demoList().concat(entry)));
+                        localStorage.setItem('sv-author', entry.author);
+                        status.textContent = 'Zapisane testowo w tej przeglądarce.';
+                        field('text').value = '';
+                        showDemoList();
+                    } catch (e) {
+                        status.textContent = 'Przeglądarka nie pozwala zapisać.';
+                    }
+                    send.disabled = false;
+                    return;
+                }
+                try {
+                    const res = await fetch(API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(Object.assign({ author: author, text: field('text').value, website: field('website').value }, slide))
+                    });
+                    const data = await res.json();
+                    if (!data.ok) throw new Error(data.error);
+                    try { localStorage.setItem('sv-author', author.trim()); } catch (e) { /* tryb prywatny */ }
+                    field('text').value = '';
+                    status.textContent = 'Dziękujemy, zapisane.';
+                    setTimeout(() => dialog.close(), 1200);
+                } catch (e) {
+                    status.textContent = (e instanceof SyntaxError || e instanceof TypeError) ? 'Nie udało się wysłać. Spróbuj później.' : e.message;
+                    send.disabled = false;
+                }
+            });
+        }
+
+        // Link z panelu zgłoszeń (?k=sekcja:klucz:część) trafia w slajd także po zmianie numeracji
+        function goToKey() {
+            const k = (params.get('k') || '').split(':');
+            if (k.length !== 3) return;
+            const target = Reveal.getSlides().find(s => (s.dataset.sectionNumber || '') === k[0] &&
+                s.dataset.slideKey === k[1] && (s.dataset.part || '') === k[2]);
+            if (target) Reveal.slide(Reveal.getIndices(target).h);
+        }
 
         // ── Strona startowa: lista z slajdy/moduly.json ──
         async function readList() {
@@ -712,6 +860,7 @@
                 const res = await fetch(DIR + name + '.md', { cache: 'no-cache' });
                 if (!res.ok) throw new Error('HTTP ' + res.status);
                 await present(await res.text(), name, meta);
+                setupSuggestions(name);
             } catch (e) {
                 showError('Nie mogę wczytać pliku <code>' + esc(DIR + name) + '.md</code> (' + esc(e.message) + '). ' +
                     '<a href="./">Wróć do listy modułów</a>.');
@@ -747,6 +896,7 @@
             if (!saved) { location.href = location.pathname; return; }
             document.getElementById('sv-local-tools').style.display = 'flex';
             await present(saved.md, saved.name, null);
+            setupSuggestions('plik: ' + saved.name);
         }
 
         const m = params.get('m');

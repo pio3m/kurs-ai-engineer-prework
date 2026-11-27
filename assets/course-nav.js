@@ -259,6 +259,7 @@
 
         // Capture phase: runs before Reveal's own key handling
         document.addEventListener('keydown', ev => {
+            if (ev.target.closest && ev.target.closest('dialog')) return;  // otwarty formularz
             const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(ev.target.tagName) || ev.target.isContentEditable;
             if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'f') {
                 ev.preventDefault(); ev.stopPropagation();

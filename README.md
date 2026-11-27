@@ -4,8 +4,8 @@ Statyczna strona, która wczytuje plik Markdown pobrany z narzędzia do tworzeni
 i pokazuje go jako prezentację Reveal.js, tak samo jak widzi ją kursant w narzędziu
 (nagłówek, dwie kolumny, ramki kodu, spis treści, wyszukiwarka).
 
-Same pliki statyczne (HTML, CSS, JS, fonty). Nie potrzeba bazy, PHP, Node ani Dockera,
-a strona nie pobiera niczego z zewnętrznych serwerów.
+Slajdy to same pliki statyczne (HTML, CSS, JS, fonty): nie potrzeba bazy, PHP, Node ani
+Dockera. PHP jest potrzebne tylko do zgłaszania sugestii. Strona nie pobiera niczego z zewnętrznych serwerów.
 
 **Podgląd:** https://pio3m.github.io/kurs-ai-engineer-prework/?m=module-0
 
@@ -53,27 +53,56 @@ Klawisze: strzałki zmieniają slajdy, `T` spis treści, `Ctrl+F` lub `/` wyszuk
 
 ## Lokalny test w Dockerze
 
-Do sprawdzania plików Markdown przed wgraniem do narzędzia. Potrzebny jest Docker Desktop.
+Do sprawdzania plików Markdown i zgłoszeń sugestii. Potrzebny jest Docker Desktop.
 
 ```powershell
 docker compose up -d
 ```
 
-Strona jest pod http://localhost:8080/?m=module-0. Folder repo jest zamontowany do kontenera
-(nginx, bez cache), więc po podmianie `slajdy/module-0.md` wystarczy odświeżyć stronę
-(Ctrl+F5), bez przebudowy.
+- Slajdy: http://localhost:8080/?m=module-0
+- Panel zgłoszeń: http://localhost:8080/api/admin.php (lokalne hasło: `lokalnie`, zmienisz je
+  zmienną `SLAJDY_ADMIN_PASSWORD`, np. w pliku `.env`)
+
+Folder repo jest zamontowany do kontenera (PHP + Apache), więc po podmianie
+`slajdy/module-0.md` wystarczy odświeżyć stronę (Ctrl+F5). Port jest dostępny tylko z tego
+komputera.
 
 Szybki test bez zmiany `moduly.json`: na stronie startowej http://localhost:8080/ użyj
-przycisku „Wybierz plik Markdown” i wskaż plik z dysku. W stopce prezentacji są wtedy dwa
-przyciski: „Wczytaj inny plik” (zastępuje wgrany plik nowym) i „Usuń plik” (wraca do wyboru).
-Wgrany plik jest pamiętany tylko w tej karcie przeglądarki, nigdzie nie jest wysyłany.
+przycisku „Wybierz plik Markdown”. W stopce są wtedy „Wczytaj inny plik” i „Usuń plik”.
+Wgrany plik jest pamiętany tylko w tej karcie przeglądarki i nigdzie nie jest wysyłany.
 
 ```powershell
 docker compose logs -f     # podgląd logów
-docker compose down        # zatrzymanie
+docker compose down        # zatrzymanie (zgłoszenia zostają w wolumenie "dane")
 ```
 
-Port zmienisz w `docker-compose.yml` (linia `"8080:80"`).
+## Zgłaszanie sugestii do slajdów
+
+Przycisk **„Zgłoś sugestię”** w stopce zapisuje: kto, kiedy, treść, moduł, numer i tytuł
+slajdu oraz stały klucz slajdu z pliku `.md`. Prowadzący w `api/admin.php` widzi listę,
+zmienia status (nowe / zrobione / odrzucone), usuwa i eksportuje CSV. Link przy zgłoszeniu
+otwiera właściwy slajd po kluczu, także gdy numeracja się zmieniła.
+
+**Wymaga hostingu z PHP 7.4+ i SQLite.** Przycisk pokazuje się tylko tam, gdzie działa
+`api/suggest.php`.
+
+Wdrożenie:
+
+1. Wgraj cały folder na hosting.
+2. Skopiuj `api/config.sample.php` jako `api/config.php` i ustaw mocne hasło.
+3. Ustaw w `config.php` ścieżkę bazy poza `public_html` (na nginx to konieczne, bo
+   `.htaccess` nie działa). Domyślnie baza powstaje w `api/data/` i zamyka ją `.htaccess`.
+4. Panel otwieraj przez HTTPS.
+
+Ograniczenia: bez logowania imię jest tylko deklaracją; limit to 10 zgłoszeń na 10 minut
+z jednego adresu IP (grupa za jednym łączem dzieli ten limit).
+
+### Test na GitHub Pages
+
+GitHub Pages nie uruchamia PHP, więc normalnie przycisku tam nie ma. Adres z `&demo=1`
+włącza **tryb testowy**: formularz działa, ale zapis zostaje tylko w Twojej przeglądarce:
+
+https://pio3m.github.io/kurs-ai-engineer-prework/?m=module-0&demo=1
 
 ## Osadzenie na stronie (WordPress i inne)
 

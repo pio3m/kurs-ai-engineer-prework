@@ -1,11 +1,20 @@
 # Lokalny podgląd slajdów: docker compose up -d, potem http://localhost:8080/?m=module-0
+# Panel zgłoszeń: http://localhost:8080/api/admin.php (hasło lokalne: SLAJDY_ADMIN_PASSWORD, domyślnie "lokalnie")
 services:
   slajdy:
-    image: nginx:alpine
+    image: php:8.3-apache
     container_name: kurs-prework-slajdy
     ports:
-      - "8080:80"
+      - "127.0.0.1:8080:80"   # tylko z tego komputera
+    environment:
+      SLAJDY_ADMIN_PASSWORD: ${SLAJDY_ADMIN_PASSWORD:-lokalnie}
+      SLAJDY_DB: /var/slajdy-dane/sugestie.sqlite
     volumes:
-      - ./:/usr/share/nginx/html:ro
-      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./:/var/www/html:ro
+      - dane:/var/slajdy-dane   # baza zgłoszeń, poza folderem strony
+    # Apache czyta .htaccess z repo; katalog bazy musi być zapisywalny dla serwera
+    command: sh -c "a2enmod -q headers && chown www-data /var/slajdy-dane && exec apache2-foreground"
     restart: unless-stopped
+
+volumes:
+  dane:

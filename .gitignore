@@ -1,0 +1,4 @@
+# Lokalne hasło i baza zgłoszeń nie trafiają do repo
+api/config.php
+api/data/
+.env
