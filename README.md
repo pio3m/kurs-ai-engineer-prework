@@ -51,6 +51,30 @@ Nazwy plików: tylko litery, cyfry, `-`, `_` i `.`, bez spacji i polskich znakó
 Klawisze: strzałki zmieniają slajdy, `T` spis treści, `Ctrl+F` lub `/` wyszukiwarka,
 `F` pełny ekran, `Esc` przegląd wszystkich slajdów.
 
+## Lokalny test w Dockerze
+
+Do sprawdzania plików Markdown przed wgraniem do narzędzia. Potrzebny jest Docker Desktop.
+
+```powershell
+docker compose up -d
+```
+
+Strona jest pod http://localhost:8080/?m=module-0. Folder repo jest zamontowany do kontenera
+(nginx, bez cache), więc po podmianie `slajdy/module-0.md` wystarczy odświeżyć stronę
+(Ctrl+F5), bez przebudowy.
+
+Szybki test bez zmiany `moduly.json`: na stronie startowej http://localhost:8080/ użyj
+przycisku „Wybierz plik Markdown” i wskaż plik z dysku. W stopce prezentacji są wtedy dwa
+przyciski: „Wczytaj inny plik” (zastępuje wgrany plik nowym) i „Usuń plik” (wraca do wyboru).
+Wgrany plik jest pamiętany tylko w tej karcie przeglądarki, nigdzie nie jest wysyłany.
+
+```powershell
+docker compose logs -f     # podgląd logów
+docker compose down        # zatrzymanie
+```
+
+Port zmienisz w `docker-compose.yml` (linia `"8080:80"`).
+
 ## Osadzenie na stronie (WordPress i inne)
 
 Na stronie lub we wpisie dodaj blok „Własny HTML”:
@@ -71,8 +95,18 @@ Nginx ignoruje `.htaccess`, strona i tak działa.
 
 ## PDF
 
-Otwórz `…/?m=module-0&print-pdf` w Chrome lub Edge, poczekaj na wczytanie, potem Ctrl+P,
-„Zapisz jako PDF”, układ poziomy, marginesy „Brak”, zaznacz „Grafika tła”.
+Przycisk **„Pobierz PDF”** w stopce otwiera prezentację w trybie wydruku w nowej karcie
+i sam pokazuje okno drukowania (poczekaj, aż się wczyta). W Chrome lub Edge ustaw:
+
+- Miejsce docelowe: **Zapisz jako PDF**
+- Marginesy: **Brak**
+- **Grafika w tle**: zaznaczona
+
+Jeden slajd to jedna strona 16:9. Slajd za wysoki na stronę (zwykle długi kod) jest
+zmniejszany, aż zmieści się w całości nad stopką. Przycisk działa też dla pliku wybranego
+z dysku. Jeśli przeglądarka zablokuje nową kartę, zezwól na wyskakujące okna dla tej strony.
+
+Ręcznie: otwórz `…/?m=module-0&print-pdf`, potem Ctrl+P.
 
 ## Podgląd bez serwera
 

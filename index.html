@@ -436,6 +436,11 @@
             <span class="dm-foot-section" id="dm-section-name"></span>
         </span>
         <span class="dm-foot-right">
+            <span id="sv-local-tools" style="display:none;gap:8px;align-items:center;pointer-events:auto;">
+                <label class="dm-foot-btn" style="margin:0;">Wczytaj inny plik<input type="file" id="sv-file-swap" accept=".md,.markdown,text/markdown,text/plain" style="display:none;"></label>
+                <button type="button" class="dm-foot-btn" id="sv-file-remove" title="Usuń wczytany plik i wróć do wyboru">Usuń plik</button>
+            </span>
+            <button type="button" class="dm-foot-btn" id="sv-pdf" title="Zapisz całą prezentację jako PDF">Pobierz PDF</button>
             <button type="button" class="dm-foot-btn" id="dm-nav-toggle" title="Spis treści i wyszukiwarka (T, Ctrl+F)">☰ Spis treści / szukaj</button>
             <span class="dm-page" id="dm-page"></span>
             <a href="https://devmentor.pl">devmentor.pl</a>
@@ -623,29 +628,43 @@
             Reveal.layout();
         });
 
-        // Wydruk do PDF (?print-pdf, potem Ctrl+P): za wysoka strona jest zmniejszana (min. 70%)
+        // Wydruk do PDF (?print-pdf, potem Ctrl+P): za wysoka strona jest zmniejszana, aż zmieści się w całości
         const PRINT_BOTTOM = 720 - 36 - 8;
         function fitPrintPages() {
             Reveal.getSlides().forEach(section => {
                 const header = section.querySelector(':scope > h2');
                 if (!header) return;
-                const top = section.getBoundingClientRect().top;
-                let bottom = 0;
-                section.querySelectorAll(':scope > *, :scope > .dm-cols > *').forEach(el => {
-                    const r = el.getBoundingClientRect();
-                    if (r.height) bottom = Math.max(bottom, r.bottom - top);
-                });
-                if (bottom <= PRINT_BOTTOM) return;
-                const headerBottom = header.getBoundingClientRect().bottom - top;
-                const zoom = Math.max(0.7, (PRINT_BOTTOM - headerBottom) / (bottom - headerBottom));
-                Array.from(section.children).filter(el => el !== header)
-                    .forEach(el => { el.style.zoom = zoom.toFixed(3); });
+                const body = Array.from(section.children).filter(el => el !== header);
+                const contentBottom = () => {
+                    const top = section.getBoundingClientRect().top;
+                    let bottom = 0;
+                    section.querySelectorAll(':scope > *, :scope > .dm-cols > *').forEach(el => {
+                        const r = el.getBoundingClientRect();
+                        if (r.height) bottom = Math.max(bottom, r.bottom - top);
+                    });
+                    return bottom;
+                };
+                // Zmniejszamy krokami i mierzymy ponownie, aż treść zmieści się nad stopką
+                for (let zoom = 0.97; zoom > 0.39 && contentBottom() > PRINT_BOTTOM; zoom -= 0.03) {
+                    body.forEach(el => { el.style.zoom = zoom.toFixed(2); });
+                }
             });
             document.documentElement.classList.add('dm-print-ready');
+            // Otwarte przyciskiem „Pobierz PDF”: od razu okno drukowania
+            if (params.get('auto')) setTimeout(() => window.print(), 500);
         }
         if (/print-pdf/.test(location.search)) {
             Reveal.on('pdf-ready', () => document.fonts.ready.then(fitPrintPages));
         }
+
+        // „Pobierz PDF”: ta sama prezentacja w trybie wydruku, w nowej karcie (karta dziedziczy
+        // sessionStorage, więc działa też dla pliku wybranego z dysku)
+        document.getElementById('sv-pdf').addEventListener('click', () => {
+            const q = new URLSearchParams(location.search);
+            q.set('print-pdf', '');
+            q.set('auto', '1');
+            window.open(location.pathname + '?' + q.toString(), '_blank');
+        });
 
         // ── Strona startowa: lista z slajdy/moduly.json ──
         async function readList() {
@@ -699,15 +718,39 @@
             }
         }
 
-        document.getElementById('sv-file').addEventListener('change', ev => {
-            const file = ev.target.files[0];
+        // Plik z dysku: zapamiętujemy go na czas karty i przeładowujemy stronę, więc kolejny
+        // plik zastępuje poprzedni bez resztek (Reveal inicjuje się raz na załadowanie).
+        const LOCAL_KEY = 'sv-local-md';
+        function loadLocal(file) {
             if (!file) return;
-            const name = file.name.replace(/\.(md|markdown)$/i, '');
-            file.text().then(md => present(md, name, null));
+            file.text().then(md => {
+                try {
+                    sessionStorage.setItem(LOCAL_KEY, JSON.stringify({ name: file.name.replace(/\.(md|markdown)$/i, ''), md }));
+                } catch (e) {
+                    alert('Plik jest za duży, żeby go zapamiętać w przeglądarce.');
+                    return;
+                }
+                location.href = location.pathname + '?local=1#/0';
+                if (params.get('local')) location.reload();
+            });
+        }
+        document.getElementById('sv-file').addEventListener('change', ev => loadLocal(ev.target.files[0]));
+        document.getElementById('sv-file-swap').addEventListener('change', ev => loadLocal(ev.target.files[0]));
+        document.getElementById('sv-file-remove').addEventListener('click', () => {
+            sessionStorage.removeItem(LOCAL_KEY);
+            location.href = location.pathname;
         });
 
+        async function openLocal() {
+            let saved = null;
+            try { saved = JSON.parse(sessionStorage.getItem(LOCAL_KEY) || 'null'); } catch (e) { /* brak */ }
+            if (!saved) { location.href = location.pathname; return; }
+            document.getElementById('sv-local-tools').style.display = 'flex';
+            await present(saved.md, saved.name, null);
+        }
+
         const m = params.get('m');
-        if (m) openModule(m); else home();
+        if (params.get('local')) openLocal(); else if (m) openModule(m); else home();
     })();
     </script>
 </body>
